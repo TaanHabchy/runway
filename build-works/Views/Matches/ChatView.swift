@@ -46,7 +46,7 @@ struct ChatView: View {
                 .background(Color(.systemGray6))
                 .clipShape(Capsule())
             
-            Button(action: {}) {
+            Button(action: sendMessage) {
                 Image(systemName: "arrow.up.circle.fill")
                     .font(.system(size: 36))
                     .foregroundStyle(LayoverTheme.primaryGradient)
@@ -55,6 +55,12 @@ struct ChatView: View {
         }
         .padding()
         .background(.ultraThinMaterial)
+    }
+    
+    private func sendMessage() {
+        guard !messageText.isEmpty else { return }
+        appState.sendMessage(to: match, text: messageText)
+        messageText = ""
     }
 }
 

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0BC2021EFE0D2F2FE5963E20 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3E54509BA3664627AE66EFCE /* LaunchScreen.storyboard */; };
+		1C4CA77ED8764D57A21F4066 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 5B0B7DBA449E06E0726E3FAE /* Supabase */; };
 		3A2BAF0125164BBC96D9FF1B /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 337987EE07A83AD3EB7A0660 /* ChatView.swift */; };
 		48366ED1210098C57DC6A24B /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDF9CA91238F40E34CE04C6C /* Theme.swift */; };
 		490867D79F397333541D193E /* MatchesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD160F632EFC35FBE3470675 /* MatchesView.swift */; };
@@ -23,6 +24,7 @@
 		C210D7D9E49A6B3E2ECDD4C7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BE6F61764A7F627DE054264 /* ContentView.swift */; };
 		D0356DA8AE4559CCACE63985 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FCE0C53549E88E65FD1EF56 /* EmptyStateView.swift */; };
 		E6176D7B26B3977EED7AB674 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 315FE4D7EA02F2A5B5C91701 /* Models.swift */; };
+		ED156D1225DF1113AF03C81B /* SupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64DCE2156CF5F8860DFBD4A2 /* SupabaseService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +36,7 @@
 		4A29DCC2E0261A3C3CDE1A62 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		53EB8909E16BDEA74A244EE2 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		628F8FB73FCA54CB5EDF87BB /* ProfileCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCardView.swift; sourceTree = "<group>"; };
+		64DCE2156CF5F8860DFBD4A2 /* SupabaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseService.swift; sourceTree = "<group>"; };
 		7311AE432330AD35D373AA2D /* ActionButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonsView.swift; sourceTree = "<group>"; };
 		8BE6F61764A7F627DE054264 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		9D924CFEC840FA76359CC693 /* DiscoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverView.swift; sourceTree = "<group>"; };
@@ -45,6 +48,17 @@
 		ED12D82779B4350A4F04F260 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EDF9CA91238F40E34CE04C6C /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		EF95ECFB17E3C7F7E6B0D7AE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1C4CA77ED8764D57A21F4066 /* Supabase in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		0AEC8F9C2FC3DD7F6CD3E87D = {
@@ -129,10 +143,19 @@
 				3E54509BA3664627AE66EFCE /* LaunchScreen.storyboard */,
 				5D9A6FD51C2790499BBA0398 /* App */,
 				ECBE515902152A14BBF0DAB8 /* Models */,
+				D08A9103A8D147B90705A7A6 /* Services */,
 				880CDD194556B5D77CFCB4BA /* Theme */,
 				523D6FBD9B62B9EEE4394BA8 /* Views */,
 			);
 			path = "build-works";
+			sourceTree = "<group>";
+		};
+		D08A9103A8D147B90705A7A6 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				64DCE2156CF5F8860DFBD4A2 /* SupabaseService.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 		ECBE515902152A14BBF0DAB8 /* Models */ = {
@@ -152,6 +175,7 @@
 			buildPhases = (
 				57C7CD147A2EED6BADDF087F /* Sources */,
 				E8F143A3F66B4E63A8E9BC8F /* Resources */,
+				EF95ECFB17E3C7F7E6B0D7AE /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -159,6 +183,7 @@
 			);
 			name = "build-works";
 			packageProductDependencies = (
+				5B0B7DBA449E06E0726E3FAE /* Supabase */,
 			);
 			productName = "build-works";
 			productReference = B6C3340E07705DFB281B4C63 /* build-works.app */;
@@ -183,6 +208,9 @@
 			);
 			mainGroup = 0AEC8F9C2FC3DD7F6CD3E87D;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				DC925B7386F4C5DC6DECAC61 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
@@ -222,6 +250,7 @@
 				E6176D7B26B3977EED7AB674 /* Models.swift in Sources */,
 				8B198906CFA711E34A550152 /* ProfileCardView.swift in Sources */,
 				984E028B1189B028B2B7C441 /* ProfileView.swift in Sources */,
+				ED156D1225DF1113AF03C81B /* SupabaseService.swift in Sources */,
 				48366ED1210098C57DC6A24B /* Theme.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -263,6 +292,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CURRENT_PROJECT_VERSION = 1;
 				MARKETING_VERSION = 1.0;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.buildworks;
 				PRODUCT_NAME = "build-works";
 				SDKROOT = iphoneos;
@@ -279,6 +309,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CURRENT_PROJECT_VERSION = 1;
 				MARKETING_VERSION = 1.0;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.buildworks;
 				PRODUCT_NAME = "build-works";
 				SDKROOT = iphoneos;
@@ -310,6 +341,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		DC925B7386F4C5DC6DECAC61 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		5B0B7DBA449E06E0726E3FAE /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DC925B7386F4C5DC6DECAC61 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = C5FD11FE4CAF9932A0EF18ED /* Project object */;
 }

@@ -1,0 +1,207 @@
+import Foundation
+import Supabase
+
+class SupabaseService {
+    static let shared = SupabaseService()
+    
+    let client: SupabaseClient
+    
+    private init() {
+        client = SupabaseClient(
+            supabaseURL: URL(string: "https://snuxxqknfidvkgkutvyi.supabase.co")!,
+            supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNudXh4cWtuZmlkdmtna3V0dnlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5MzQ5MDgsImV4cCI6MjA3NzUxMDkwOH0.p2fwI8U2Zl2m4ChbF8JYy_WUQWqCanBLsdotXTiul4U"
+        )
+    }
+    
+    // MARK: - Profile Management
+    
+    func fetchCurrentUserProfile() async throws -> UserProfile? {
+        guard let userId = try? await client.auth.session.user.id else {
+            return nil
+        }
+        
+        let response: UserProfile = try await client
+            .from("profiles")
+            .select()
+            .eq("user_id", value: userId.uuidString)
+            .single()
+            .execute()
+            .value
+        
+        return response
+    }
+    
+    func updateProfile(_ profile: UserProfile) async throws {
+        try await client
+            .from("profiles")
+            .update(profile)
+            .eq("user_id", value: profile.userId)
+            .execute()
+    }
+    
+    // MARK: - Discovery
+    
+    func fetchPotentialMatches(airportCode: String, terminal: String?) async throws -> [UserProfile] {
+        var query = client
+            .from("profiles")
+            .select()
+            .eq("airport_code", value: airportCode)
+        
+        if let terminal = terminal {
+            query = query.eq("terminal", value: terminal)
+        }
+        
+        let response: [UserProfile] = try await query
+            .execute()
+            .value
+        
+        return response.filter { $0.userId != (try? await client.auth.session.user.id.uuidString) }
+    }
+    
+    // MARK: - Likes & Matches
+    
+    func likeUser(userId: String) async throws {
+        guard let currentUserId = try? await client.auth.session.user.id else {
+            throw NSError(domain: "Auth", code: 401)
+        }
+        
+        let like = LikeRecord(fromUserId: currentUserId.uuidString, toUserId: userId)
+        try await client
+            .from("likes")
+            .insert(like)
+            .execute()
+    }
+    
+    func fetchMatches() async throws -> [MatchData] {
+        guard let userId = try? await client.auth.session.user.id else {
+            return []
+        }
+        
+        let response: [MatchData] = try await client
+            .from("matches")
+            .select("*, user1:profiles!matches_user1_id_fkey(*), user2:profiles!matches_user2_id_fkey(*)")
+            .or("user1_id.eq.\(userId.uuidString),user2_id.eq.\(userId.uuidString)")
+            .execute()
+            .value
+        
+        return response
+    }
+    
+    // MARK: - Messages
+    
+    func fetchMessages(matchId: String) async throws -> [MessageData] {
+        let response: [MessageData] = try await client
+            .from("messages")
+            .select()
+            .eq("match_id", value: matchId)
+            .order("created_at", ascending: true)
+            .execute()
+            .value
+        
+        return response
+    }
+    
+    func sendMessage(matchId: String, content: String) async throws {
+        guard let userId = try? await client.auth.session.user.id else {
+            throw NSError(domain: "Auth", code: 401)
+        }
+        
+        let message = MessageData(matchId: matchId, senderId: userId.uuidString, content: content)
+        try await client
+            .from("messages")
+            .insert(message)
+            .execute()
+    }
+    
+    func subscribeToMessages(matchId: String, onMessage: @escaping (MessageData) -> Void) async {
+        let channel = client.channel("messages:\(matchId)")
+        
+        await channel.on(.postgres(event: .insert, schema: "public", table: "messages", filter: "match_id=eq.\(matchId)")) { message in
+            do {
+                let decoder = JSONDecoder()
+                decoder.dateDecodingStrategy = .iso8601
+                let messageData = try decoder.decode(MessageData.self, from: JSONSerialization.data(withJSONObject: message.payload))
+                onMessage(messageData)
+            } catch {
+                print("Error decoding message: \(error)")
+            }
+        }
+        
+        await channel.subscribe()
+    }
+}
+
+// MARK: - Data Models
+
+struct UserProfile: Codable, Identifiable {
+    let id: String
+    let userId: String
+    let name: String
+    let age: Int
+    let bio: String?
+    let airportCode: String?
+    let terminal: String?
+    let flightNumber: String?
+    let gate: String?
+    let destination: String?
+    let boardingTime: Date?
+    
+    enum CodingKeys: String, CodingKey {
+        case id, name, age, bio
+        case userId = "user_id"
+        case airportCode = "airport_code"
+        case terminal
+        case flightNumber = "flight_number"
+        case gate
+        case destination
+        case boardingTime = "boarding_time"
+    }
+}
+
+struct LikeRecord: Codable {
+    let fromUserId: String
+    let toUserId: String
+    
+    enum CodingKeys: String, CodingKey {
+        case fromUserId = "from_user_id"
+        case toUserId = "to_user_id"
+    }
+}
+
+struct MatchData: Codable, Identifiable {
+    let id: String
+    let user1Id: String
+    let user2Id: String
+    let createdAt: Date
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case user1Id = "user1_id"
+        case user2Id = "user2_id"
+        case createdAt = "created_at"
+    }
+}
+
+struct MessageData: Codable, Identifiable {
+    let id: String?
+    let matchId: String
+    let senderId: String
+    let content: String
+    let createdAt: Date?
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case matchId = "match_id"
+        case senderId = "sender_id"
+        case content
+        case createdAt = "created_at"
+    }
+    
+    init(id: String? = nil, matchId: String, senderId: String, content: String, createdAt: Date? = nil) {
+        self.id = id
+        self.matchId = matchId
+        self.senderId = senderId
+        self.content = content
+        self.createdAt = createdAt
+    }
+}

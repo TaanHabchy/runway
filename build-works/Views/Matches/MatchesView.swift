@@ -36,7 +36,7 @@ struct MatchesView: View {
     
     private var matchesList: some View {
         List(appState.matches) { match in
-            NavigationLink(destination: ChatView(match: match)) {
+            NavigationLink(destination: ChatView(match: match).environmentObject(appState)) {
                 MatchRowView(match: match)
             }
         }
