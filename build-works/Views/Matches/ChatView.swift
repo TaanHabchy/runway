@@ -3,6 +3,7 @@ import SwiftUI
 struct ChatView: View {
     let match: Match
     @State private var messageText = ""
+    @EnvironmentObject var appState: AppState
     
     var body: some View {
         VStack(spacing: 0) {
