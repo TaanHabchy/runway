@@ -2,7 +2,6 @@ import SwiftUI
 
 struct DiscoverView: View {
     @EnvironmentObject var appState: AppState
-    @State private var currentIndex = 0
     @State private var dragOffset: CGSize = .zero
     @State private var showMatchAlert = false
     @State private var matchedUser: User?
@@ -13,19 +12,29 @@ struct DiscoverView: View {
                 backgroundGradient
                 
                 VStack(spacing: 0) {
-                    airportHeader
-                    
-                    if appState.potentialMatches.isEmpty {
-                        EmptyStateView()
+                    if let currentUser = appState.currentUser {
+//                        airportHeader
+                        
+                        if appState.potentialMatches.isEmpty {
+                            EmptyStateView()
+                                .padding(.top, 50)
+                        } else {
+                            cardStack
+                            actionButtons
+                        }
+                    } else if appState.isLoading {
+                        ProgressView()
+                            .padding(.top, 50)
                     } else {
-                        cardStack
-                        actionButtons
+                        Text("No profile loaded")
+                            .foregroundStyle(.secondary)
+                            .padding(.top, 50)
                     }
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
             .alert("It's a Match! ✈️", isPresented: $showMatchAlert) {
-                Button("Send Message") { }
+                Button("Send Message") { /* TODO: Navigate to chat */ }
                 Button("Keep Swiping", role: .cancel) { }
             } message: {
                 if let user = matchedUser {
@@ -44,10 +53,10 @@ struct DiscoverView: View {
         .ignoresSafeArea()
     }
     
-    private var airportHeader: some View {
-        AirportHeaderView(airport: appState.currentAirport)
-    }
-    
+//    private var airportHeader: some View {
+//        AirportHeaderView(airport: appState.currentAirport)
+//    }
+//    
     private var cardStack: some View {
         CardStackView(
             users: appState.potentialMatches,
@@ -65,13 +74,21 @@ struct DiscoverView: View {
         )
     }
     
+    // MARK: - Actions
+    
     private func handleLike(_ user: User?) {
         guard let user = user else { return }
-        let wasMatch = appState.matches.count
-        appState.likeUser(user)
-        if appState.matches.count > wasMatch {
-            matchedUser = user
-            showMatchAlert = true
+        
+        Task {
+            // Track number of matches before liking
+            let previousMatchesCount = appState.matches.count
+            await appState.likeUser(user)
+            
+            // If a new match appeared, show alert
+            if appState.matches.count > previousMatchesCount {
+                matchedUser = user
+                showMatchAlert = true
+            }
         }
     }
     

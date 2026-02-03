@@ -103,7 +103,7 @@ struct FlightInfoBadge: View {
     }
 }
 
-#Preview {
-    ProfileCardView(user: User.sampleUsers[0], isTop: true)
-        .padding()
-}
+//#Preview {
+//    ProfileCardView(user: User, isTop: true)
+//        .padding()
+//}

@@ -57,6 +57,6 @@ struct AirportHeaderView: View {
     }
 }
 
-#Preview {
-    AirportHeaderView(airport: Airport.sample)
-}
+//#Preview {
+//    AirportHeaderView(airport: Airport.sample)
+//}

@@ -127,6 +127,7 @@ struct UserProfile: Codable, Identifiable {
     let userId: String
     let name: String
     let age: Int
+    let gender: String
     let bio: String?
     let airportCode: String?
     let terminal: String?
@@ -136,7 +137,7 @@ struct UserProfile: Codable, Identifiable {
     let boardingTime: Date?
     
     enum CodingKeys: String, CodingKey {
-        case id, name, age, bio
+        case id, name, age, bio, gender
         case userId = "user_id"
         case airportCode = "airport_code"
         case terminal

@@ -1,16 +1,15 @@
 import SwiftUI
 import Supabase
 
+@MainActor
 class AppState: ObservableObject {
-    @Published var currentUser: User = User.sampleCurrentUser
+    @Published var currentUser: User?
     @Published var matches: [Match] = []
     @Published var potentialMatches: [User] = []
-    @Published var currentAirport: Airport = Airport.sample
     @Published var isLoading = false
     @Published var isAuthenticated = false
     
     private let supabase = SupabaseService.shared
-    private var messageChannels: [String: RealtimeChannel] = [:]
     
     init() {
         Task {
@@ -18,85 +17,96 @@ class AppState: ObservableObject {
         }
     }
     
-    @MainActor
     func checkAuth() async {
         do {
             let session = try await supabase.client.auth.session
+            guard let userId = session.user.id.uuidString as String? else {
+                isAuthenticated = false
+                return
+            }
             isAuthenticated = true
+            
+            // Load current user profile
+            if let profile = try? await supabase.fetchCurrentUserProfile() {
+                currentUser = User(from: profile)
+            }
+            
             await loadUserData()
         } catch {
             isAuthenticated = false
-            // Use sample data for demo
-            potentialMatches = User.sampleUsers
-            matches = Match.sampleMatches
+            print("Not authenticated or failed to fetch session: \(error)")
         }
     }
     
-    @MainActor
     func loadUserData() async {
         isLoading = true
+        defer { isLoading = false }
         do {
             await loadPotentialMatches()
             await loadMatches()
         } catch {
-            print("Error loading data: \(error)")
+            print("Error loading user data: \(error)")
         }
-        isLoading = false
     }
     
-    @MainActor
     func loadPotentialMatches() async {
         do {
-            let profiles = try await supabase.fetchPotentialMatches(
-                airportCode: currentAirport.code,
-                terminal: currentAirport.terminal
-            )
-            potentialMatches = profiles.map { User(from: $0) }
+            // Fetch all users except the current user
+            let profiles = try await supabase.client
+                .from("profiles")
+                .select()
+                .execute()
+                .value as [UserProfile]
+            
+            if let currentUserId = currentUser?.id {
+                potentialMatches = profiles
+                    .filter { $0.userId != currentUserId }
+                    .map { User(from: $0) }
+            } else {
+                potentialMatches = profiles.map { User(from: $0) }
+            }
         } catch {
             print("Error fetching potential matches: \(error)")
-            potentialMatches = User.sampleUsers
         }
     }
     
-    @MainActor
     func loadMatches() async {
         do {
             let matchesData = try await supabase.fetchMatches()
             var loadedMatches: [Match] = []
             
+            guard let currentUserId = currentUser?.id else { return }
+            
             for matchData in matchesData {
-                let messages = try await supabase.fetchMessages(matchId: matchData.id)
-                // Determine the other user in the match
-                guard let session = try? await supabase.client.auth.session else { continue }
-                let otherUserId = matchData.user1Id == session.user.id.uuidString ? matchData.user2Id : matchData.user1Id
+                let messagesData = try await supabase.fetchMessages(matchId: matchData.id)
                 
-                // For now, create placeholder user (would fetch full profile in production)
-                let user = User(
-                    id: otherUserId,
-                    name: "User",
-                    age: 25,
-                    bio: "Matched!",
-                    photos: ["person.fill"],
-                    destination: "Unknown",
-                    flight: "",
-                    gate: "",
-                    boardingTime: Date()
-                )
+                let otherUserId = matchData.user1Id == currentUserId ? matchData.user2Id : matchData.user1Id
                 
-                let match = Match(
-                    id: matchData.id,
-                    user: user,
-                    messages: messages.map { Message(from: $0) },
-                    matchedAt: matchData.createdAt
-                )
-                loadedMatches.append(match)
-
+                // Fetch full profile for the other user
+                if let otherProfile = try? await supabase.client
+                    .from("profiles")
+                    .select()
+                    .eq("user_id", value: otherUserId)
+                    .single()
+                    .execute()
+                    .value as UserProfile? {
+                    
+                    let user = User(from: otherProfile)
+                    
+                    let match = Match(
+                        id: matchData.id,
+                        user: user,
+                        messages: messagesData.map { Message(from: $0) },
+                        matchedAt: matchData.createdAt
+                    )
+                    
+                    loadedMatches.append(match)
+                }
             }
             
             matches = loadedMatches
         } catch {
             print("Error fetching matches: \(error)")
-            matches = Match.sampleMatches
         }
     }
     
@@ -104,23 +114,10 @@ class AppState: ObservableObject {
         Task {
             do {
                 try await supabase.likeUser(userId: user.id)
-                await MainActor.run {
-                    potentialMatches.removeAll { $0.id == user.id }
-                }
-                // Reload matches to see if mutual like occurred
-                await loadMatches()
+                potentialMatches.removeAll { $0.id == user.id }
+                await loadMatches() // reload matches for mutual likes
             } catch {
                 print("Error liking user: \(error)")
-                // Fallback to local simulation
-                await MainActor.run {
-                    if let index = potentialMatches.firstIndex(where: { $0.id == user.id }) {
-                        potentialMatches.remove(at: index)
-                        if Bool.random() {
-                            let newMatch = Match(user: user)
-                            matches.append(newMatch)
-                        }
-                    }
-                }
             }
         }
     }

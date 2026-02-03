@@ -84,9 +84,9 @@ struct MessageBubble: View {
         }
     }
 }
-
-#Preview {
-    NavigationStack {
-        ChatView(match: Match.sampleMatches[0])
-    }
-}
+//
+//#Preview {
+//    NavigationStack {
+//        ChatView(match: Match.sampleMatches[0])
+//    }
+//}

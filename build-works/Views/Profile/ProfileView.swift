@@ -7,9 +7,18 @@ struct ProfileView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
-                    profileHeader
-                    flightCard
-                    settingsPlaceholder
+                    if let user = appState.currentUser {
+                        profileHeader(for: user)
+                        flightCard(for: user)
+                        settingsPlaceholder
+                    } else if appState.isLoading {
+                        ProgressView()
+                            .padding(.top, 50)
+                    } else {
+                        Text("No profile data available")
+                            .foregroundStyle(.secondary)
+                            .padding(.top, 50)
+                    }
                 }
                 .padding()
             }
@@ -18,23 +27,35 @@ struct ProfileView: View {
         }
     }
     
-    private var profileHeader: some View {
+    // MARK: - Subviews
+    
+    private func profileHeader(for user: User) -> some View {
         VStack(spacing: 16) {
             avatarView
             
             VStack(spacing: 4) {
-                Text("\(appState.currentUser.name), \(appState.currentUser.age)")
+                Text("\(user.name), \(user.age)")
                     .font(.title2)
                     .fontWeight(.bold)
                 
-                Text(appState.currentUser.bio)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
+                if !user.bio.isEmpty {
+                    Text(user.bio)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                } else {
+                    Text("No bio provided")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .italic()
+                }
             }
+
             
-            Button("Edit Profile") {}
-                .buttonStyle(PrimaryButtonStyle())
+            Button("Edit Profile") {
+                // TODO: Add edit action
+            }
+            .buttonStyle(PrimaryButtonStyle())
         }
         .padding(.vertical, 24)
     }
@@ -51,17 +72,17 @@ struct ProfileView: View {
         }
     }
     
-    private var flightCard: some View {
+    private func flightCard(for user: User) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Current Flight")
                 .font(.headline)
             
             HStack {
-                FlightDetailItem(icon: "airplane.departure", title: "Flight", value: appState.currentUser.flight)
+                FlightDetailItem(icon: "airplane.departure", title: "Flight", value: user.flight)
                 Spacer()
-                FlightDetailItem(icon: "door.right.hand.open", title: "Gate", value: appState.currentUser.gate)
+                FlightDetailItem(icon: "door.right.hand.open", title: "Gate", value: user.gate)
                 Spacer()
-                FlightDetailItem(icon: "mappin.circle", title: "To", value: appState.currentUser.destination)
+                FlightDetailItem(icon: "mappin.circle", title: "To", value: user.destination)
             }
         }
         .padding(20)
@@ -81,6 +102,8 @@ struct ProfileView: View {
     }
 }
 
+// MARK: - Subcomponents
+
 struct FlightDetailItem: View {
     let icon: String
     let title: String
@@ -96,7 +119,7 @@ struct FlightDetailItem: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
             
-            Text(value)
+            Text(value.isEmpty ? "-" : value)
                 .font(.subheadline)
                 .fontWeight(.semibold)
         }
@@ -127,6 +150,8 @@ struct SettingsRow: View {
         .padding()
     }
 }
+
+// MARK: - Preview
 
 #Preview {
     ProfileView()
