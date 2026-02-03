@@ -96,6 +96,22 @@ struct ProfileView: View {
             SettingsRow(icon: "lock.fill", title: "Privacy", color: .blue)
             SettingsRow(icon: "questionmark.circle.fill", title: "Help & Support", color: .green)
             SettingsRow(icon: "info.circle.fill", title: "About", color: .purple)
+            
+            Button {
+                Task { await appState.signOut() }
+            } label: {
+                HStack(spacing: 14) {
+                    Image(systemName: "rectangle.portrait.and.arrow.right")
+                        .font(.body)
+                        .foregroundStyle(.red)
+                        .frame(width: 28)
+                    Text("Sign Out")
+                        .font(.body)
+                        .foregroundStyle(.red)
+                    Spacer()
+                }
+                .padding()
+            }
         }
         .background(Color(.systemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 16))

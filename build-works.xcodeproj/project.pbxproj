@@ -21,7 +21,10 @@
 		8BABC0E4927BC202942E7D90 /* AirportHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0487E945CE6F21EA68AF07AF /* AirportHeaderView.swift */; };
 		984E028B1189B028B2B7C441 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2583A8BE40B3AC514668681 /* ProfileView.swift */; };
 		A0358AF201A0E5D8B3607930 /* DiscoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D924CFEC840FA76359CC693 /* DiscoverView.swift */; };
+		A1B2C3D4E5F60718293A4B5C /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5D /* AuthView.swift */; };
+		B2C3D4E5F60718293A4B5C6D /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F60718293A4B5C6E /* OnboardingView.swift */; };
 		C210D7D9E49A6B3E2ECDD4C7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BE6F61764A7F627DE054264 /* ContentView.swift */; };
+		C3D4E5F60718293A4B5C6D7E /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3D4E5F60718293A4B5C6D7F /* RootView.swift */; };
 		D0356DA8AE4559CCACE63985 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FCE0C53549E88E65FD1EF56 /* EmptyStateView.swift */; };
 		E6176D7B26B3977EED7AB674 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 315FE4D7EA02F2A5B5C91701 /* Models.swift */; };
 		ED156D1225DF1113AF03C81B /* SupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64DCE2156CF5F8860DFBD4A2 /* SupabaseService.swift */; };
@@ -29,6 +32,9 @@
 
 /* Begin PBXFileReference section */
 		0487E945CE6F21EA68AF07AF /* AirportHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirportHeaderView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B5D /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
+		B2C3D4E5F60718293A4B5C6E /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		C3D4E5F60718293A4B5C6D7F /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		1A16F7D6880640342B29CF0D /* CardStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardStackView.swift; sourceTree = "<group>"; };
 		25BFCCB7114885A121AF6EBE /* LayoverApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoverApp.swift; sourceTree = "<group>"; };
 		315FE4D7EA02F2A5B5C91701 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
@@ -81,11 +87,30 @@
 			isa = PBXGroup;
 			children = (
 				8BE6F61764A7F627DE054264 /* ContentView.swift */,
+				C3D4E5F60718293A4B5C6D7F /* RootView.swift */,
+				A7F8E9D1A2B3C4D5E6F70819 /* Auth */,
+				B8E9F0E2D3C4B5A69708192A /* Onboarding */,
 				5B75794BF23B39B29820A63B /* Discover */,
 				91585E6B3AC10E46F1787249 /* Matches */,
 				48F3BABF179A61C2A103CEF0 /* Profile */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		A7F8E9D1A2B3C4D5E6F70819 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F60718293A4B5D /* AuthView.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		B8E9F0E2D3C4B5A69708192A /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				B2C3D4E5F60718293A4B5C6E /* OnboardingView.swift */,
+			);
+			path = Onboarding;
 			sourceTree = "<group>";
 		};
 		5B75794BF23B39B29820A63B /* Discover */ = {
@@ -238,6 +263,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				62C5CE12084E5774E4467A7E /* ActionButtonsView.swift in Sources */,
+				A1B2C3D4E5F60718293A4B5C /* AuthView.swift in Sources */,
 				8BABC0E4927BC202942E7D90 /* AirportHeaderView.swift in Sources */,
 				63CFC6DBB646127C43EE259F /* AppState.swift in Sources */,
 				562815EEA88A117E5F473F84 /* CardStackView.swift in Sources */,
@@ -249,7 +275,9 @@
 				490867D79F397333541D193E /* MatchesView.swift in Sources */,
 				E6176D7B26B3977EED7AB674 /* Models.swift in Sources */,
 				8B198906CFA711E34A550152 /* ProfileCardView.swift in Sources */,
+				B2C3D4E5F60718293A4B5C6D /* OnboardingView.swift in Sources */,
 				984E028B1189B028B2B7C441 /* ProfileView.swift in Sources */,
+				C3D4E5F60718293A4B5C6D7E /* RootView.swift in Sources */,
 				ED156D1225DF1113AF03C81B /* SupabaseService.swift in Sources */,
 				48366ED1210098C57DC6A24B /* Theme.swift in Sources */,
 			);

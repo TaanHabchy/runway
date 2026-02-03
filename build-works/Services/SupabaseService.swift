@@ -13,7 +13,33 @@ class SupabaseService {
         )
     }
     
+    // MARK: - Auth
+    
+    func signUp(email: String, password: String) async throws {
+        _ = try await client.auth.signUp(email: email, password: password)
+    }
+    
+    func signIn(email: String, password: String) async throws {
+        _ = try await client.auth.signIn(email: email, password: password)
+    }
+    
+    func signOut() async throws {
+        try await client.auth.signOut()
+    }
+    
+    func getCurrentUserId() async throws -> String {
+        let id = try await client.auth.session.user.id
+        return id.uuidString
+    }
+    
     // MARK: - Profile Management
+    
+    func createProfile(_ profile: UserProfileInsert) async throws {
+        try await client
+            .from("profiles")
+            .upsert(profile, onConflict: "user_id", ignoreDuplicates: true)
+            .execute()
+    }
     
     func fetchCurrentUserProfile() async throws -> UserProfile? {
         guard let userId = try? await client.auth.session.user.id else {
@@ -138,6 +164,32 @@ struct UserProfile: Codable, Identifiable {
     
     enum CodingKeys: String, CodingKey {
         case id, name, age, bio, gender
+        case userId = "user_id"
+        case airportCode = "airport_code"
+        case terminal
+        case flightNumber = "flight_number"
+        case gate
+        case destination
+        case boardingTime = "boarding_time"
+    }
+}
+
+/// Used for creating a new profile during onboarding (insert).
+struct UserProfileInsert: Encodable {
+    let userId: String
+    let name: String
+    let age: Int
+    let gender: String
+    let bio: String?
+    let airportCode: String?
+    let terminal: String?
+    let flightNumber: String?
+    let gate: String?
+    let destination: String?
+    let boardingTime: Date?
+    
+    enum CodingKeys: String, CodingKey {
+        case name, age, bio, gender
         case userId = "user_id"
         case airportCode = "airport_code"
         case terminal

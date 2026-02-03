@@ -8,6 +8,14 @@ class AppState: ObservableObject {
     @Published var potentialMatches: [User] = []
     @Published var isLoading = false
     @Published var isAuthenticated = false
+    @Published var authError: String?
+    @Published var hasCheckedAuth = false
+    
+    /// True when the user has a profile with at least name set (onboarding completed).
+    var hasCompletedOnboarding: Bool {
+        guard let user = currentUser else { return false }
+        return !user.name.isEmpty
+    }
     
     private let supabase = SupabaseService.shared
     
@@ -18,23 +26,73 @@ class AppState: ObservableObject {
     }
     
     func checkAuth() async {
+        authError = nil
         do {
             let session = try await supabase.client.auth.session
-            guard let userId = session.user.id.uuidString as String? else {
-                isAuthenticated = false
-                return
-            }
+            _ = session.user.id.uuidString
             isAuthenticated = true
             
-            // Load current user profile
+            // Load current user profile (may be nil for new users before onboarding)
             if let profile = try? await supabase.fetchCurrentUserProfile() {
                 currentUser = User(from: profile)
+            } else {
+                currentUser = nil
             }
             
             await loadUserData()
         } catch {
             isAuthenticated = false
+            currentUser = nil
             print("Not authenticated or failed to fetch session: \(error)")
+        }
+        hasCheckedAuth = true
+    }
+    
+    func signUp(email: String, password: String) async {
+        authError = nil
+        isLoading = true
+        defer { isLoading = false }
+        do {
+            try await supabase.signUp(email: email, password: password)
+            await checkAuth()
+        } catch {
+            authError = error.localizedDescription
+        }
+    }
+    
+    func signIn(email: String, password: String) async {
+        authError = nil
+        isLoading = true
+        defer { isLoading = false }
+        do {
+            try await supabase.signIn(email: email, password: password)
+            await checkAuth()
+        } catch {
+            authError = error.localizedDescription
+        }
+    }
+    
+    func signOut() async {
+        authError = nil
+        do {
+            try await supabase.signOut()
+            isAuthenticated = false
+            currentUser = nil
+            matches = []
+            potentialMatches = []
+        } catch {
+            authError = error.localizedDescription
+        }
+    }
+    
+    func completeOnboarding(profile: UserProfileInsert) async {
+        isLoading = true
+        defer { isLoading = false }
+        do {
+            try await supabase.createProfile(profile)
+            await checkAuth()
+        } catch {
+            authError = error.localizedDescription
         }
     }
     
