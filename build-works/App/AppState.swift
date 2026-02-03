@@ -90,9 +90,7 @@ class AppState: ObservableObject {
                     matchedAt: matchData.createdAt
                 )
                 loadedMatches.append(match)
-                
-                // Subscribe to new messages
-                subscribeToMessages(matchId: matchData.id)
+
             }
             
             matches = loadedMatches
@@ -137,20 +135,6 @@ class AppState: ObservableObject {
                 try await supabase.sendMessage(matchId: match.id, content: text)
             } catch {
                 print("Error sending message: \(error)")
-            }
-        }
-    }
-    
-    private func subscribeToMessages(matchId: String) {
-        Task {
-            await supabase.subscribeToMessages(matchId: matchId) { [weak self] messageData in
-                Task { @MainActor in
-                    guard let self = self else { return }
-                    if let index = self.matches.firstIndex(where: { $0.id == matchId }) {
-                        let newMessage = Message(from: messageData)
-                        self.matches[index].messages.append(newMessage)
-                    }
-                }
             }
         }
     }

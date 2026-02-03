@@ -46,17 +46,23 @@ class SupabaseService {
             .from("profiles")
             .select()
             .eq("airport_code", value: airportCode)
-        
+
         if let terminal = terminal {
             query = query.eq("terminal", value: terminal)
         }
-        
+
         let response: [UserProfile] = try await query
             .execute()
             .value
-        
-        return response.filter { $0.userId != (try? await client.auth.session.user.id.uuidString) }
+
+        // ✅ Fetch async value BEFORE using filter
+        let currentUserId = try await client.auth.session.user.id.uuidString
+
+        return response.filter { profile in
+            profile.userId != currentUserId
+        }
     }
+
     
     // MARK: - Likes & Matches
     
@@ -111,23 +117,6 @@ class SupabaseService {
             .from("messages")
             .insert(message)
             .execute()
-    }
-    
-    func subscribeToMessages(matchId: String, onMessage: @escaping (MessageData) -> Void) async {
-        let channel = client.channel("messages:\(matchId)")
-        
-        await channel.on(.postgres(event: .insert, schema: "public", table: "messages", filter: "match_id=eq.\(matchId)")) { message in
-            do {
-                let decoder = JSONDecoder()
-                decoder.dateDecodingStrategy = .iso8601
-                let messageData = try decoder.decode(MessageData.self, from: JSONSerialization.data(withJSONObject: message.payload))
-                onMessage(messageData)
-            } catch {
-                print("Error decoding message: \(error)")
-            }
-        }
-        
-        await channel.subscribe()
     }
 }
 
